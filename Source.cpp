@@ -1,89 +1,144 @@
 #include<iostream>
-#include"BinaryNodeTree.h"
+#include<string>
+#include<vector>
+#include<math.h>
 using namespace std;
 
+//function prototypes
+bool isPrime(int numPar);
+bool isCircularPrime(int primePar);
+
 int main() {
-	BinaryNodeTree* binaryTreePtr = new BinaryNodeTree();
-	char tryAgain = 'Y';
-	int choice;
-	int item;
+	//declarations
+	vector<int>intPrimes; //original copy
+	vector<int>intPrimesCopy; //copy of primes, must make this because original primes are changed to 0s in code
+	vector<int>digitsOfPrimes; //contains all the digits of the primes in primes copy
+	vector<int>circularPrimes; // all circular primes
+	int userNum; 
+	int baseOfNumbers = 10; // I'm using base 10, so this value will equal 10
+	int resultOfPrimeDividedByBase = 0; 
+	int numberOfDigits = 0; // gives number of digits for a prime num
+	int reverseOfUserNum = 0; //new rotation of a prime
+	int quotient = 0; //quotient of what you're dividing
+	int firstCounter = 0; // check if this is equal to the number of digits so it can be a circular prime
+	int exponent = 0;
+	int countOfIntPrimesCopy = 0; //tells where you're at in int primes copy
+	int numberOfTimesToRotatePrime = 1; // must be put to 1 because first rotation has already been done
 
-	while (tryAgain == 'Y' || tryAgain == 'y')
-	{
-		system("cls");
-		cout << "Tree operations - Link Based" << endl;
-		cout << "1. isEmpty" << endl;
-		cout << "2. getHeight" << endl;
-		cout << "3. getNumberOfNodes" << endl;
-		cout << "4. getRootData" << endl;
-		cout << "5. setRootData" << endl;
-		cout << "6. add" << endl;
-		cout << "7. remove" << endl;
-		cout << "8. clear" << endl;
-		cout << "9. getEntry" << endl;
-		cout << "10. contains" << endl;
-		cout << "11. copy tree" << endl;
-		cout << "----------------------------" << endl;
-		cout << "Enter your choice: ";
-		cin >> choice;
+	//get user input
+	cout << "How many circular primes are below: ";
+	cin >> userNum;
 
-		switch (choice)
-		{
-		case 1: //isEmpty
-			cout << "Tree Empty: " << bool(binaryTreePtr->isEmpty()) << endl;
-			break;
-		case 2: //getHeight
-			cout << "Tree Height: " << binaryTreePtr->getHeight() << endl;
-			break;
-		case 3: //getNumberOfNodes
-			cout << "Tree Nodes: " << binaryTreePtr->getNumberOfNodes() << endl;
-			break;
-		case 4: //getRootData
-			cout << "Tree root node value: " << binaryTreePtr->getRootData() << endl;
-			break;
-		case 5: //setRootData
-			cout << "Set root node value to: ";
-			cin >> item;
-			binaryTreePtr->setRootData(item);
-			break;
-		case 6: //add
-			cout << "Add value: ";
-			cin >> item;
-			cout << "Able to add item: " << binaryTreePtr->add(item) << endl;
-			break;
-		case 7: //remove
-			cout << "Remove value: ";
-			cin >> item;
-			cout << "Able to remove item: " << binaryTreePtr->remove(item) << endl;
-			break;
-		case 8: //clear
-			cout << "Cleared Tree";
-			binaryTreePtr->clear();
-			break;
-		case 9: //getEntry
-			cout << "Check tree for entry: ";
-			cin >> item;
-			cout << "Is this entry in the tree? " << binaryTreePtr->getEntry(item) << endl;
-			break;
-		case 10: //contains
-			cout << "Check if tree contains: ";
-			cin >> item;
-			cout << "Does this tree contain " << item << "? " << binaryTreePtr->contains(item) << endl;
-			break;
-		case 11: //copy tree
+	//calculations
 
-		default:
-			break;
+	//check if number is prime
+	for (int i = 0; i <= userNum; i++) {
+		if (i == 0 || i == 1) {
+			cout << "";
 		}
-		cout << endl << "Try again (y/n): ";
-		cin >> tryAgain;
+		else {
+			if (isPrime(i) == true) {
+				intPrimes.push_back(i);
+				intPrimesCopy.push_back(i);
+			}
+		}
+	}
+	//getting the number of digits
+	for (int i = 0; i < intPrimes.size(); i++) {
+		while (resultOfPrimeDividedByBase != 1) {
+			numberOfDigits++;
+			resultOfPrimeDividedByBase = (intPrimes.at(i) /= baseOfNumbers) + 1;
+		}
+		resultOfPrimeDividedByBase = 0;
+		digitsOfPrimes.push_back(numberOfDigits);
+		numberOfDigits = 0;
+	}
+	
+	//check if prime is circular prime
+	for (countOfIntPrimesCopy; countOfIntPrimesCopy < intPrimesCopy.size(); countOfIntPrimesCopy++) {
+		if (countOfIntPrimesCopy < 4) {
+			circularPrimes.push_back(intPrimesCopy.at((countOfIntPrimesCopy)));
+		}
+		else {
+			//rotation function
+			for (countOfIntPrimesCopy; countOfIntPrimesCopy < digitsOfPrimes.size(); countOfIntPrimesCopy++) {
+				for (int j = 0; j < 1; j++) {
+					exponent = pow(10, (digitsOfPrimes.at(countOfIntPrimesCopy) - 1));
+					// this rotates the first number to the end of the number
+					// ex 123 now becomes 231
+					reverseOfUserNum = intPrimesCopy.at(countOfIntPrimesCopy) % exponent;
+					quotient = intPrimesCopy.at(countOfIntPrimesCopy) / exponent;
+					reverseOfUserNum = (reverseOfUserNum * 10) + quotient;
+					firstCounter++;
+					if (isCircularPrime(reverseOfUserNum) == true) {
+						if (digitsOfPrimes.at(countOfIntPrimesCopy) > 1 && isCircularPrime(reverseOfUserNum) == true
+							&& isPrime(reverseOfUserNum) == true) {
+							for (numberOfTimesToRotatePrime; numberOfTimesToRotatePrime < digitsOfPrimes.at(countOfIntPrimesCopy); numberOfTimesToRotatePrime++) {
+								firstCounter++;
+								quotient = reverseOfUserNum / exponent;
+								reverseOfUserNum = reverseOfUserNum % exponent;
+								reverseOfUserNum = (reverseOfUserNum * 10) + quotient;
+								if (isCircularPrime(reverseOfUserNum) == false) {
+									numberOfTimesToRotatePrime = numberOfTimesToRotatePrime + digitsOfPrimes.at(countOfIntPrimesCopy);
+								}
+							}
+						}
+					}
+				}
+				if (firstCounter == digitsOfPrimes.at(countOfIntPrimesCopy)) {
+					circularPrimes.push_back(intPrimesCopy.at(countOfIntPrimesCopy));
+				}
+				firstCounter = 0;
+				numberOfTimesToRotatePrime = 1;
+			}
+		}
 	}
 
-	if (!binaryTreePtr->isEmpty())
-		binaryTreePtr->clear();
+	//output
+	cout << circularPrimes.size() << ": ";
+	for (int i = 0; i < circularPrimes.size(); i++) {
+		if (i == circularPrimes.size() - 1) {
+			cout << circularPrimes.at(i); // for the final circular prime, so no comma
+		}
+		else {
+			cout << circularPrimes.at(i) << ", "; // for the rest of the primes, so comma
+		}
+	}
 
-	delete binaryTreePtr;
-	binaryTreePtr = nullptr;
+	cout << endl;
 
+	system("pause");
 	return 0;
 }
+
+
+bool isPrime(int numPar) {
+	if (numPar == 2 || numPar == 3 || numPar == 5 || numPar == 7 || numPar == 11 || 
+		numPar == 13 || numPar == 17 || numPar == 31 || numPar == 71) {
+		return true;
+	}
+	else if (numPar % 2 != 0 && numPar % 3 != 0 && numPar % 4 != 0 && numPar % 5 != 0 &&
+		numPar % 6 != 0 && numPar % 7 != 0 && numPar % 8 != 0 && numPar % 9 != 0 &&
+		numPar % 11 != 0 && numPar % 13 != 0 && numPar % 17 != 0 && numPar % 19 != 0 && numPar % 23 != 0) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+bool isCircularPrime(int primePar) {
+	if (primePar == 2 || primePar == 3 || primePar == 5 || primePar == 7 || primePar == 11 ||
+		primePar == 13 || primePar == 17 || primePar == 31 || primePar == 71) {
+		return true;
+	}
+	else if (primePar % 2 != 0 && primePar % 3 != 0 && primePar % 4 != 0 && primePar % 5 != 0 &&
+		primePar % 6 != 0 && primePar % 7 != 0 && primePar % 8 != 0 && primePar % 9 != 0 &&
+		primePar % 11 != 0 && primePar % 13 != 0 && primePar % 17 != 0 && primePar % 19 != 0 && primePar % 23 != 0) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
